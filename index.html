@@ -12,16 +12,31 @@
     
       #thank-you-badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 5px;
+    left: 5px;
     background-color: #ffcc00; /* Yellow background */
     color: #ffffff;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-size: 0.875rem; /* Small text size */
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-size: 0.75rem; /* Smaller text size */
     font-weight: bold;
+    text-align: center;
+    cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
     z-index: 10; /* Ensure it's on top of other elements */
+}
+
+#thank-you-badge:hover {
+    background-color: #ffb700; /* Slight hover effect */
+}
+
+#thank-you-badge:before {
+    content: "X"; /* The cross symbol */
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: white;
+    display: block;
+}
 }
 
 #thank-you-badge:hover {
@@ -148,14 +163,15 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
     const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
     const data = await res.json();
 
-    // Get the result container and make it visible
+    // Get the result container and error message container
     const resultContainer = document.getElementById('ifsc-result');
-    const errorContainer = document.getElementById('ifsc-error'); // Optional error container
+    const errorContainer = document.getElementById('ifsc-error'); // Error container for "Not found"
 
-    if (res.ok) {
+    if (res.ok && data.IFSC) {
         // Show the result container and fill it with data
         resultContainer.classList.remove('hidden');
-        
+        document.getElementById('thank-you-badge').classList.remove('hidden'); // Show badge
+
         document.getElementById('ifsc-bank-name').textContent = data.BANK || "N/A";
         document.getElementById('ifsc-branch').textContent = data.BRANCH || "N/A";
         document.getElementById('ifsc-address').textContent = data.ADDRESS || "N/A";
@@ -165,19 +181,14 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
         document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
         document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
 
-        if (errorContainer) errorContainer.classList.add('hidden');
-
-        // Optionally, show or animate the flag badge on top-left of result container
-        const thankYouBadge = document.getElementById('thank-you-badge');
-        thankYouBadge.classList.remove('hidden');
+        // Hide the error message if data is found
+        errorContainer.classList.add('hidden');
 
     } else {
-        // Show an error message if the IFSC code was not found
+        // Show the error message if the IFSC code was not found
         resultContainer.classList.add('hidden');
-        if (errorContainer) {
-            errorContainer.textContent = 'Not found. Please check the IFSC code.';
-            errorContainer.classList.remove('hidden');
-        }
+        errorContainer.classList.remove('hidden');
+        errorContainer.textContent = 'Data not found for the provided IFSC code.';
     }
 });
 
