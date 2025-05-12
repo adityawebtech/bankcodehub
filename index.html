@@ -9,6 +9,25 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
+    
+      #thank-you-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ffcc00; /* Yellow background */
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.875rem; /* Small text size */
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+    z-index: 10; /* Ensure it's on top of other elements */
+}
+
+#thank-you-badge:hover {
+    background-color: #ffb700; /* Slight hover effect */
+    cursor: pointer;
+}
     }
   </style>
 </head>
@@ -35,17 +54,11 @@
           <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
           <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
         </form>
-        <!-- Flag Animation Message -->
-<div id="thank-you-message" class="hidden absolute top-0 left-0 bg-yellow-400 p-2 text-white text-sm font-semibold rounded-br-lg">
-    Thanks to Aditya by Donating ❤️
-</div>
-
-<!-- IFSC Result Container -->
+        <!-- IFSC Result Container -->
 <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8 relative">
-    <div id="thank-you-message-container" class="absolute top-0 left-0 hidden">
-        <div class="bg-blue-600 text-white px-4 py-2 rounded-r-lg text-sm font-medium">
-            Thanks to Aditya by Donating ❤️
-        </div>
+    <!-- Badge for the "Thanks to Aditya by Donating" message -->
+    <div id="thank-you-badge" class="absolute top-0 left-0 bg-yellow-400 text-white px-4 py-2 rounded-br-lg text-sm font-semibold">
+        Thanks to Aditya by Donating ❤️
     </div>
     <div class="text-center">
         <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
@@ -154,13 +167,10 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
 
         if (errorContainer) errorContainer.classList.add('hidden');
 
-        // Show the flag message animation
-        const thankYouMessage = document.getElementById('thank-you-message');
-        thankYouMessage.classList.remove('hidden');
-        
-        setTimeout(() => {
-            thankYouMessage.classList.add('hidden');
-        }, 5000); // Hide after 5 seconds
+        // Optionally, show or animate the flag badge on top-left of result container
+        const thankYouBadge = document.getElementById('thank-you-badge');
+        thankYouBadge.classList.remove('hidden');
+
     } else {
         // Show an error message if the IFSC code was not found
         resultContainer.classList.add('hidden');
@@ -191,6 +201,7 @@ document.getElementById('copy-btn').addEventListener('click', function () {
         alert("Failed to copy result: " + err);
     });
 });
+    
 // Branch search
 document.getElementById('branch-form').addEventListener('submit', async function (e) {
   e.preventDefault();
