@@ -96,33 +96,17 @@
   </footer>
 
   <script>
-    const ifscBtn = document.getElementById('by-ifsc-btn');
-const branchBtn = document.getElementById('by-branch-btn');
-const ifscTab = document.getElementById('by-ifsc');
-const branchTab = document.getElementById('by-branch');
-
-ifscBtn.addEventListener('click', () => {
-  ifscTab.classList.remove('hidden');
-  branchTab.classList.add('hidden');
-  ifscBtn.classList.add('bg-blue-600', 'text-white');
-  branchBtn.classList.remove('bg-blue-600', 'text-white');
-});
-
-branchBtn.addEventListener('click', () => {
-  branchTab.classList.remove('hidden');
-  ifscTab.classList.add('hidden');
-  branchBtn.classList.add('bg-blue-600', 'text-white');
-  ifscBtn.classList.remove('bg-blue-600', 'text-white');
-});
-
-// IFSC search
 document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   const code = this.ifsc.value.trim().toUpperCase();
+  
+  // Fetch data from backend
   const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
   const data = await res.json();
-  document.getElementById('ifsc-result').innerHTML = res.ok
-    ? `<strong>IFSC: ${data.ifsc}</strong><br>${data.address}<br>Contact: ${data.contact}<br>MICR: ${data.micr || "N/A"}`
+
+  // Check if the response is valid and update result
+  document.getElementById('ifsc-result').innerHTML = res.ok && data.IFSC
+    ? `<strong>IFSC: ${data.IFSC}</strong><br>${data.ADDRESS}<br>Contact: ${data.CONTACT || "N/A"}<br>MICR: ${data.MICR || "N/A"}`
     : `<span class="text-red-600">Not found. Please check the IFSC code.</span>`;
 });
 
@@ -130,9 +114,13 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
 document.getElementById('branch-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   const params = new URLSearchParams(new FormData(this)).toString();
+  
+  // Fetch branch details from backend
   const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?${params}`);
   const data = await res.json();
-  document.getElementById('branch-result').innerHTML = res.ok
+  
+  // Check if the response is valid and update result
+  document.getElementById('branch-result').innerHTML = res.ok && data.IFSC
     ? `<strong>${data.BANK}</strong><br>${data.BRANCH}, ${data.ADDRESS}<br>${data.CITY}, ${data.STATE}<br>IFSC: ${data.IFSC}`
     : `<span class="text-red-600">Branch details not found.</span>`;
 });
