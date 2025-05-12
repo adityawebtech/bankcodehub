@@ -32,7 +32,7 @@
           <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
           <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
         </form>
-        <!-- IFSC Result Container -->
+<!-- IFSC Result Container -->
 <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8 relative">
     <div class="text-center">
         <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
@@ -51,8 +51,11 @@
         </button>
     </div>
 </div>
-      </div>
 
+<!-- Error Message (for when IFSC data is not found) -->
+<div id="ifsc-error" class="hidden text-red-600 mt-4">
+    Data not found for the provided IFSC code.
+</div>
       <!-- Search by Branch -->
       <div id="by-branch" class="tab-content hidden">
         <form id="branch-form" class="space-y-4">
@@ -129,7 +132,6 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
     if (res.ok && data.IFSC) {
         // Show the result container and fill it with data
         resultContainer.classList.remove('hidden');
-        document.getElementById('thank-you-badge').classList.remove('hidden'); // Show badge
 
         document.getElementById('ifsc-bank-name').textContent = data.BANK || "N/A";
         document.getElementById('ifsc-branch').textContent = data.BRANCH || "N/A";
