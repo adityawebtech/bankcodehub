@@ -33,7 +33,20 @@
           <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
           <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
         </form>
-        <div id="ifsc-result" class="mt-4 text-sm"></div>
+        <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
+    <div class="text-center">
+        <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
+        <div class="mt-4">
+            <p class="text-lg"><strong>Branch:</strong> <span id="ifsc-branch"></span></p>
+            <p class="text-lg"><strong>Address:</strong> <span id="ifsc-address"></span></p>
+            <p class="text-lg"><strong>City:</strong> <span id="ifsc-city"></span></p>
+            <p class="text-lg"><strong>State:</strong> <span id="ifsc-state"></span></p>
+            <p class="text-lg"><strong>IFSC Code:</strong> <span id="ifsc-code"></span></p>
+            <p class="text-lg"><strong>Contact:</strong> <span id="ifsc-contact"></span></p>
+            <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr"></span></p>
+        </div>
+    </div>
+</div>
       </div>
 
       <!-- Search by Branch -->
