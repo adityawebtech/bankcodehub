@@ -9,40 +9,6 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-    
-      #thank-you-badge {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    background-color: #ffcc00; /* Yellow background */
-    color: #ffffff;
-    padding: 2px 6px;
-    border-radius: 50%;
-    font-size: 0.75rem; /* Smaller text size */
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
-    z-index: 10; /* Ensure it's on top of other elements */
-}
-
-#thank-you-badge:hover {
-    background-color: #ffb700; /* Slight hover effect */
-}
-
-#thank-you-badge:before {
-    content: "X"; /* The cross symbol */
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: white;
-    display: block;
-}
-}
-
-#thank-you-badge:hover {
-    background-color: #ffb700; /* Slight hover effect */
-    cursor: pointer;
-}
     }
   </style>
 </head>
@@ -52,10 +18,7 @@
       <h1 class="text-3xl font-bold text-yellow-300 tracking-wide">BankCodeHub</h1>
       <p class="text-sm text-blue-200">Search IFSC, branch, and bank details instantly</p>
     </div>
-    
-    
   </header>
-
   <main class="max-w-4xl mx-auto p-6">
     <div class="bg-white p-6 rounded-xl shadow-md mt-6">
       <div class="flex justify-center space-x-4 mb-6">
@@ -71,10 +34,6 @@
         </form>
         <!-- IFSC Result Container -->
 <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8 relative">
-    <!-- Badge for the "Thanks to Aditya by Donating" message -->
-    <div id="thank-you-badge" class="absolute top-0 left-0 bg-yellow-400 text-white px-4 py-2 rounded-br-lg text-sm font-semibold">
-        Thanks to Aditya by Donating ❤️
-    </div>
     <div class="text-center">
         <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
         <div class="mt-4">
