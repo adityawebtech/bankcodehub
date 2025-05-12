@@ -35,7 +35,20 @@
           <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
           <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
         </form>
-        <div id="ifsc-result" class="mt-4 text-sm"></div>
+        <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
+    <div class="text-center">
+        <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
+        <div class="mt-4">
+            <p class="text-lg"><strong>Branch:</strong> <span id="ifsc-branch"></span></p>
+            <p class="text-lg"><strong>Address:</strong> <span id="ifsc-address"></span></p>
+            <p class="text-lg"><strong>City:</strong> <span id="ifsc-city"></span></p>
+            <p class="text-lg"><strong>State:</strong> <span id="ifsc-state"></span></p>
+            <p class="text-lg"><strong>IFSC Code:</strong> <span id="ifsc-code"></span></p>
+            <p class="text-lg"><strong>Contact:</strong> <span id="ifsc-contact"></span></p>
+            <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr"></span></p>
+        </div>
+    </div>
+        </div>
       </div>
 
       <!-- Search by Branch -->
@@ -101,17 +114,32 @@
 document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   const code = this.ifsc.value.trim().toUpperCase();
-  
-  // Fetch data from backend
   const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
   const data = await res.json();
+  
+  // Hide result initially
+  const resultContainer = document.getElementById('ifsc-result');
+  resultContainer.classList.remove('hidden');
+  
+  if (res.ok) {
+    // Populate the result
+    document.getElementById('ifsc-bank-name').textContent = data.BANK;
+    document.getElementById('ifsc-branch').textContent = data.BRANCH;
+    document.getElementById('ifsc-address').textContent = data.ADDRESS;
+    document.getElementById('ifsc-city').textContent = data.CITY;
+    document.getElementById('ifsc-state').textContent = data.STATE;
+    document.getElementById('ifsc-code').textContent = data.IFSC;
+    document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
+    document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
 
-  // Check if the response is valid and update result
-  document.getElementById('ifsc-result').innerHTML = res.ok && data.IFSC
-    ? `<strong>IFSC: ${data.IFSC}</strong><br>${data.ADDRESS}<br>Contact: ${data.CONTACT || "N/A"}<br>MICR: ${data.MICR || "N/A"}`
-    : `<span class="text-red-600">Not found. Please check the IFSC code.</span>`;
+    // Apply a success message
+    resultContainer.classList.add('bg-green-100');
+    resultContainer.classList.add('text-green-600');
+  } else {
+    // Show error message
+    resultContainer.innerHTML = `<span class="text-red-600 text-xl">Not found. Please check the IFSC code.</span>`;
+  }
 });
-
 // Branch search
 document.getElementById('branch-form').addEventListener('submit', async function (e) {
   e.preventDefault();
