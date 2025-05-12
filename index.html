@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BankCodeHub – IFSC Code Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-blue-50 text-gray-800">
+  <header class="bg-blue-900 text-white p-4 shadow-md">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-3xl font-bold text-yellow-300 tracking-wide">BankCodeHub</h1>
+      <p class="text-sm text-blue-200">Search IFSC, branch, and bank details instantly</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6">
+    <div class="bg-white p-6 rounded-xl shadow-md mt-6">
+      <div class="flex justify-center space-x-4 mb-6">
+        <button id="by-ifsc-btn" class="tab-btn px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Search by IFSC</button>
+        <button id="by-branch-btn" class="tab-btn px-4 py-2 bg-gray-200 text-blue-700 rounded hover:bg-blue-300">Search by Branch</button>
+      </div>
+
+      <!-- Search by IFSC -->
+      <div id="by-ifsc" class="tab-content">
+        <form id="ifsc-form" class="space-y-4">
+          <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
+          <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
+        </form>
+        <div id="ifsc-result" class="mt-4 text-sm"></div>
+      </div>
+
+      <!-- Search by Branch -->
+      <div id="by-branch" class="tab-content hidden">
+        <form id="branch-form" class="space-y-4">
+          <input type="text" name="bank" placeholder="Bank Name" class="w-full p-3 border rounded" required/>
+          <input type="text" name="state" placeholder="State" class="w-full p-3 border rounded" required/>
+          <input type="text" name="district" placeholder="District" class="w-full p-3 border rounded" required/>
+          <input type="text" name="branch" placeholder="Branch Name" class="w-full p-3 border rounded" required/>
+          <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Get IFSC Details</button>
+        </form>
+        <div id="branch-result" class="mt-4 text-sm"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-sm text-gray-600 mt-10 mb-4">
+    &copy; 2025 <strong>BankCodeHub</strong>. Built with care.
+  </footer>
+
+  <script>
+    const ifscBtn = document.getElementById('by-ifsc-btn');
+    const branchBtn = document.getElementById('by-branch-btn');
+    const ifscTab = document.getElementById('by-ifsc');
+    const branchTab = document.getElementById('by-branch');
+
+    ifscBtn.addEventListener('click', () => {
+      ifscTab.classList.remove('hidden');
+      branchTab.classList.add('hidden');
+      ifscBtn.classList.add('bg-blue-600', 'text-white');
+      branchBtn.classList.remove('bg-blue-600', 'text-white');
+    });
+
+    branchBtn.addEventListener('click', () => {
+      branchTab.classList.remove('hidden');
+      ifscTab.classList.add('hidden');
+      branchBtn.classList.add('bg-blue-600', 'text-white');
+      ifscBtn.classList.remove('bg-blue-600', 'text-white');
+    });
+
+    // IFSC search
+    document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const code = this.ifsc.value.trim().toUpperCase();
+      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
+      const data = await res.json();
+      document.getElementById('ifsc-result').innerHTML = res.ok
+        ? `<strong>${data.BANK}</strong><br>${data.BRANCH}, ${data.ADDRESS}<br>${data.CITY}, ${data.STATE}<br>IFSC: ${data.IFSC}`
+        : `<span class="text-red-600">Not found. Please check the IFSC code.</span>`;
+    });
+
+    // Branch search
+    document.getElementById('branch-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const params = new URLSearchParams(new FormData(this)).toString();
+      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?${params}`);
+      const data = await res.json();
+      document.getElementById('branch-result').innerHTML = res.ok
+        ? `<strong>${data.BANK}</strong><br>${data.BRANCH}, ${data.ADDRESS}<br>${data.CITY}, ${data.STATE}<br>IFSC: ${data.IFSC}`
+        : `<span class="text-red-600">Branch details not found.</span>`;
+    });
+  </script>
+</body>
+</html>
