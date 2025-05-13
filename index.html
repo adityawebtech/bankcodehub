@@ -140,49 +140,37 @@
   document.getElementById('by-ifsc-btn').addEventListener('click', function () {
     document.getElementById('ifsc-form-container').classList.remove('hidden');
     document.getElementById('by-branch').classList.add('hidden');
-    document.getElementById('branch-result').innerHTML = ''; // Clear previous branch results
   });
 
   document.getElementById('by-branch-btn').addEventListener('click', function () {
     document.getElementById('by-branch').classList.remove('hidden');
     document.getElementById('ifsc-form-container').classList.add('hidden');
-    document.getElementById('ifsc-result').classList.add('hidden'); // Hide previous IFSC results
   });
 
   // IFSC Search
   document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const code = this.ifsc.value.trim().toUpperCase();
+
+    const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
+    const data = await res.json();
+    console.log(data); // For debugging
+
     const result = document.getElementById('ifsc-result');
-    result.classList.add('hidden');
-    result.innerHTML = '';
 
-    if (!code) {
-      result.innerHTML = `<p class="text-red-600 text-center text-lg">Please enter a valid IFSC code.</p>`;
+    if (res.ok && data.ifsc) {
+      document.getElementById('ifsc-bank-name').textContent = data.bank;
+      document.getElementById('ifsc-branch').textContent = data.branch;
+      document.getElementById('ifsc-address').textContent = data.address;
+      document.getElementById('ifsc-city').textContent = data.city;
+      document.getElementById('ifsc-state').textContent = data.state;
+      document.getElementById('ifsc-code').textContent = data.ifsc;
+      document.getElementById('ifsc-contact').textContent = data.contact || "N/A";
+      document.getElementById('ifsc-micr').textContent = data.micr || "N/A";
+
       result.classList.remove('hidden');
-      return;
-    }
-
-    try {
-      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
-      const data = await res.json();
-
-      if (res.ok && data.ifsc) {
-  document.getElementById('ifsc-bank-name').textContent = data.bank;
-  document.getElementById('ifsc-branch').textContent = data.branch;
-  document.getElementById('ifsc-address').textContent = data.address;
-  document.getElementById('ifsc-city').textContent = data.city;
-  document.getElementById('ifsc-state').textContent = data.state;
-  document.getElementById('ifsc-code').textContent = data.ifsc;
-  document.getElementById('ifsc-contact').textContent = data.contact || "N/A";
-  document.getElementById('ifsc-micr').textContent = data.micr || "N/A";
-        result.classList.remove('hidden');
-      } else {
-        result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
-        result.classList.remove('hidden');
-      }
-    } catch (err) {
-      result.innerHTML = `<p class="text-red-600 text-center text-lg">Error fetching data. Try again.</p>`;
+    } else {
+      result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
       result.classList.remove('hidden');
     }
   });
@@ -196,34 +184,25 @@
     const district = this.district.value.trim().toUpperCase();
     const branch = this.branch.value.trim().toUpperCase();
 
+    const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?bank=${bank}&state=${state}&district=${district}&branch=${branch}`);
+    const data = await res.json();
+    console.log(data); // For debugging
+
     const branchResult = document.getElementById('branch-result');
-    branchResult.innerHTML = '';
 
-    if (!bank || !state || !district || !branch) {
-      branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Please fill all fields.</p>`;
-      return;
-    }
-
-    try {
-      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?bank=${bank}&state=${state}&district=${district}&branch=${branch}`);
-      const data = await res.json();
-
-      if (res.ok && data.ifsc) {
-        branchResult.innerHTML = `
-          <p><strong>IFSC Code:</strong> ${data.ifsc}</p>
-          <p><strong>MICR:</strong> ${data.micr || "N/A"}</p>
-          <p><strong>Address:</strong> ${data.address}</p>
-          <p><strong>Contact:</strong> ${data.contact || "N/A"}</p>
-        `;
-      } else {
-        branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the branch details.</p>`;
-      }
-    } catch (err) {
-      branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Error fetching data. Try again.</p>`;
+    if (res.ok && data.ifsc) {
+      branchResult.innerHTML = `
+        <p><strong>IFSC Code:</strong> ${data.ifsc}</p>
+        <p><strong>MICR:</strong> ${data.micr || "N/A"}</p>
+        <p><strong>Address:</strong> ${data.address}</p>
+        <p><strong>Contact:</strong> ${data.contact || "N/A"}</p>
+      `;
+    } else {
+      branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the branch details.</p>`;
     }
   });
 
-  // Copy all IFSC details
+  // Copy all details
   document.getElementById('copy-all-btn').addEventListener('click', function () {
     const fields = [
       ['Bank', document.getElementById('ifsc-bank-name').textContent],
