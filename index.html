@@ -167,16 +167,15 @@
       const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
       const data = await res.json();
 
-      if (res.ok && data.IFSC) {
-        document.getElementById('ifsc-bank-name').textContent = data.BANK;
-        document.getElementById('ifsc-branch').textContent = data.BRANCH;
-        document.getElementById('ifsc-address').textContent = data.ADDRESS;
-        document.getElementById('ifsc-city').textContent = data.CITY;
-        document.getElementById('ifsc-state').textContent = data.STATE;
-        document.getElementById('ifsc-code').textContent = data.IFSC;
-        document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
-        document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
-
+      if (res.ok && data.ifsc) {
+  document.getElementById('ifsc-bank-name').textContent = data.bank;
+  document.getElementById('ifsc-branch').textContent = data.branch;
+  document.getElementById('ifsc-address').textContent = data.address;
+  document.getElementById('ifsc-city').textContent = data.city;
+  document.getElementById('ifsc-state').textContent = data.state;
+  document.getElementById('ifsc-code').textContent = data.ifsc;
+  document.getElementById('ifsc-contact').textContent = data.contact || "N/A";
+  document.getElementById('ifsc-micr').textContent = data.micr || "N/A";
         result.classList.remove('hidden');
       } else {
         result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
