@@ -55,8 +55,8 @@
     <button type="submit"
       class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
   </form>
-  <div id="ifsc-result"
-    class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
+
+  <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
     <div class="text-center">
       <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
       <div class="mt-4">
@@ -69,8 +69,19 @@
         <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr">N/A</span></p>
       </div>
     </div>
-    <!-- Search by Branch -->
-<div id="branch-form-container" class="tab-content hidden">
+  </div>
+
+  <div class="mt-6 text-center">
+    <button id="copy-all-btn"
+      class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+      Copy Details
+    </button>
+    <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
+  </div>
+</div>
+
+<!-- Search by Branch (moved outside the IFSC section) -->
+<div id="branch-form-container" class="tab-content hidden mt-8">
   <form id="branch-form" class="space-y-4">
     <select id="bank-select" class="w-full p-3 border border-gray-300 rounded" required>
       <option value="">Select Bank</option>
@@ -97,15 +108,6 @@
         <p class="text-lg"><strong>State:</strong> <span id="branch-state"></span></p>
         <p class="text-lg"><strong>IFSC Code:</strong> <span id="branch-ifsc"></span></p>
       </div>
-    </div>
-  </div>
-</div>
-    <div class="mt-6 text-center">
-      <button id="copy-all-btn"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-        Copy Details
-      </button>
-      <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
     </div>
   </div>
 </div>
