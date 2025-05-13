@@ -69,6 +69,37 @@
         <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr">N/A</span></p>
       </div>
     </div>
+    <!-- Search by Branch -->
+<div id="branch-form-container" class="tab-content hidden">
+  <form id="branch-form" class="space-y-4">
+    <select id="bank-select" class="w-full p-3 border border-gray-300 rounded" required>
+      <option value="">Select Bank</option>
+    </select>
+    <select id="state-select" class="w-full p-3 border border-gray-300 rounded" required disabled>
+      <option value="">Select State</option>
+    </select>
+    <select id="district-select" class="w-full p-3 border border-gray-300 rounded" required disabled>
+      <option value="">Select District</option>
+    </select>
+    <select id="branch-select" class="w-full p-3 border border-gray-300 rounded" required disabled>
+      <option value="">Select Branch</option>
+    </select>
+    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Find Bank Details</button>
+  </form>
+
+  <div id="branch-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
+    <div class="text-center">
+      <h2 id="branch-bank-name" class="text-2xl font-semibold text-green-600"></h2>
+      <div class="mt-4">
+        <p class="text-lg"><strong>Branch:</strong> <span id="branch-branch"></span></p>
+        <p class="text-lg"><strong>Address:</strong> <span id="branch-address"></span></p>
+        <p class="text-lg"><strong>City:</strong> <span id="branch-city"></span></p>
+        <p class="text-lg"><strong>State:</strong> <span id="branch-state"></span></p>
+        <p class="text-lg"><strong>IFSC Code:</strong> <span id="branch-ifsc"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
     <div class="mt-6 text-center">
       <button id="copy-all-btn"
         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
@@ -172,6 +203,109 @@
       setTimeout(() => status.classList.add('hidden'), 2000);
     });
   });
+
+  const baseUrl = "https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev";
+
+// Populate Bank List on Page Load
+async function loadBanks() {
+  const res = await fetch(`${baseUrl}/banks`);
+  const banks = await res.json();
+  const bankSelect = document.getElementById("bank-select");
+
+  banks.forEach(bank => {
+    const option = document.createElement("option");
+    option.value = bank;
+    option.textContent = bank;
+    bankSelect.appendChild(option);
+  });
+}
+
+// Handle Bank Selection → Load States
+document.getElementById("bank-select").addEventListener("change", async function () {
+  const bank = this.value;
+  resetDropdowns(["state", "district", "branch"]);
+  if (!bank) return;
+
+  const res = await fetch(`${baseUrl}/states?bank=${encodeURIComponent(bank)}`);
+  const states = await res.json();
+  populateDropdown("state-select", states);
+});
+
+// Handle State Selection → Load Districts
+document.getElementById("state-select").addEventListener("change", async function () {
+  const bank = document.getElementById("bank-select").value;
+  const state = this.value;
+  resetDropdowns(["district", "branch"]);
+  if (!state) return;
+
+  const res = await fetch(`${baseUrl}/districts?bank=${encodeURIComponent(bank)}&state=${encodeURIComponent(state)}`);
+  const districts = await res.json();
+  populateDropdown("district-select", districts);
+});
+
+// Handle District Selection → Load Branches
+document.getElementById("district-select").addEventListener("change", async function () {
+  const bank = document.getElementById("bank-select").value;
+  const state = document.getElementById("state-select").value;
+  const district = this.value;
+  resetDropdowns(["branch"]);
+  if (!district) return;
+
+  const res = await fetch(`${baseUrl}/branches?bank=${encodeURIComponent(bank)}&state=${encodeURIComponent(state)}&district=${encodeURIComponent(district)}`);
+  const branches = await res.json();
+  populateDropdown("branch-select", branches);
+});
+
+// Handle Final Submission to Get Branch Details
+document.getElementById("branch-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const bank = document.getElementById("bank-select").value;
+  const state = document.getElementById("state-select").value;
+  const district = document.getElementById("district-select").value;
+  const branch = document.getElementById("branch-select").value;
+
+  const res = await fetch(`${baseUrl}/get-details?bank=${encodeURIComponent(bank)}&state=${encodeURIComponent(state)}&district=${encodeURIComponent(district)}&branch=${encodeURIComponent(branch)}`);
+  const data = await res.json();
+  const result = document.getElementById("branch-result");
+
+  if (res.ok && data.IFSC) {
+    document.getElementById("branch-bank-name").textContent = data.BANK;
+    document.getElementById("branch-branch").textContent = data.BRANCH;
+    document.getElementById("branch-address").textContent = data.ADDRESS;
+    document.getElementById("branch-city").textContent = data.CITY;
+    document.getElementById("branch-state").textContent = data.STATE;
+    document.getElementById("branch-ifsc").textContent = data.IFSC;
+
+    result.classList.remove("hidden");
+  } else {
+    result.innerHTML = `<p class="text-red-600 text-center text-lg">Details not found. Try again.</p>`;
+    result.classList.remove("hidden");
+  }
+});
+
+// Utility Functions
+function populateDropdown(id, items) {
+  const select = document.getElementById(`${id}-select`);
+  select.innerHTML = `<option value="">Select ${id.replace("-select", "").charAt(0).toUpperCase() + id.replace("-select", "").slice(1)}</option>`;
+  items.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    option.textContent = item;
+    select.appendChild(option);
+  });
+  select.disabled = false;
+}
+
+function resetDropdowns(ids) {
+  ids.forEach(id => {
+    const select = document.getElementById(`${id}-select`);
+    select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
+    select.disabled = true;
+  });
+}
+
+// Init
+loadBanks();
 </script>
 </body>
 </html>
