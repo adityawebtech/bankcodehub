@@ -7,10 +7,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-  </style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  #ifsc-result {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+  
 </head>
 <body class="bg-blue-50 text-gray-800">
   <header class="bg-blue-900 text-white p-4 shadow-md">
@@ -30,26 +40,26 @@
       </div>
 
       <!-- Search by IFSC -->
-      <div id="by-ifsc" class="tab-content">
-        <form id="ifsc-form" class="space-y-4">
-          <input type="text" name="ifsc" placeholder="Enter IFSC Code" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" required />
-          <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800">Find Bank Details</button>
-        </form>
-        <div id="ifsc-result" class="hidden bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto mt-8">
-    <div class="text-center">
-        <h2 id="ifsc-bank-name" class="text-2xl font-semibold text-blue-600"></h2>
-        <div class="mt-4">
-            <p class="text-lg"><strong>Branch:</strong> <span id="ifsc-branch"></span></p>
-            <p class="text-lg"><strong>Address:</strong> <span id="ifsc-address"></span></p>
-            <p class="text-lg"><strong>City:</strong> <span id="ifsc-city"></span></p>
-            <p class="text-lg"><strong>State:</strong> <span id="ifsc-state"></span></p>
-            <p class="text-lg"><strong>IFSC Code:</strong> <span id="ifsc-code"></span></p>
-            <p class="text-lg"><strong>Contact:</strong> <span id="ifsc-contact"></span></p>
-            <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr"></span></p>
-        </div>
-    </div>
+      <div id="ifsc-result" class="hidden bg-white p-6 rounded-xl shadow-2xl max-w-3xl mx-auto mt-8 border border-blue-100">
+  <div class="text-center mb-4">
+    <h2 id="ifsc-bank-name" class="text-2xl font-bold text-blue-700 uppercase"></h2>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 text-base" id="ifsc-details">
+    <p><strong>Branch:</strong> <span id="ifsc-branch"></span></p>
+    <p><strong>Address:</strong> <span id="ifsc-address"></span></p>
+    <p><strong>City:</strong> <span id="ifsc-city"></span></p>
+    <p><strong>State:</strong> <span id="ifsc-state"></span></p>
+    <p><strong>IFSC Code:</strong> <span id="ifsc-code" class="font-mono text-blue-600"></span></p>
+    <p><strong>Contact:</strong> <span id="ifsc-contact"></span></p>
+    <p><strong>MICR Code:</strong> <span id="ifsc-micr"></span></p>
+  </div>
+  <div class="mt-6 text-center">
+    <button id="copy-all-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+      Copy Details
+    </button>
+    <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
+  </div>
 </div>
-      </div>
 
       <!-- Search by Branch -->
       <div id="by-branch" class="tab-content hidden">
@@ -126,19 +136,55 @@ document.getElementById('ifsc-form').addEventListener('submit', async function (
 });
 
 // Branch search
-document.getElementById('branch-form').addEventListener('submit', async function (e) {
+<script>
+document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
   e.preventDefault();
-  const params = new URLSearchParams(new FormData(this)).toString();
+  const code = this.ifsc.value.trim().toUpperCase();
   
-  // Fetch branch details from backend
-  const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?${params}`);
+  const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
   const data = await res.json();
-  
-  // Check if the response is valid and update result
-  document.getElementById('branch-result').innerHTML = res.ok && data.IFSC
-    ? `<strong>${data.BANK}</strong><br>${data.BRANCH}, ${data.ADDRESS}<br>${data.CITY}, ${data.STATE}<br>IFSC: ${data.IFSC}`
-    : `<span class="text-red-600">Branch details not found.</span>`;
+
+  const result = document.getElementById('ifsc-result');
+
+  if (res.ok && data.IFSC) {
+    document.getElementById('ifsc-bank-name').textContent = data.BANK;
+    document.getElementById('ifsc-branch').textContent = data.BRANCH;
+    document.getElementById('ifsc-address').textContent = data.ADDRESS;
+    document.getElementById('ifsc-city').textContent = data.CITY;
+    document.getElementById('ifsc-state').textContent = data.STATE;
+    document.getElementById('ifsc-code').textContent = data.IFSC;
+    document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
+    document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
+    
+    result.classList.remove('hidden');
+  } else {
+    result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
+    result.classList.remove('hidden');
+  }
 });
+
+// Copy all details
+document.getElementById('copy-all-btn').addEventListener('click', function () {
+  const fields = [
+    ['Bank', document.getElementById('ifsc-bank-name').textContent],
+    ['Branch', document.getElementById('ifsc-branch').textContent],
+    ['Address', document.getElementById('ifsc-address').textContent],
+    ['City', document.getElementById('ifsc-city').textContent],
+    ['State', document.getElementById('ifsc-state').textContent],
+    ['IFSC Code', document.getElementById('ifsc-code').textContent],
+    ['Contact', document.getElementById('ifsc-contact').textContent],
+    ['MICR Code', document.getElementById('ifsc-micr').textContent]
+  ];
+
+  const textToCopy = fields.map(([label, value]) => `${label}: ${value}`).join('\n');
+  
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    const status = document.getElementById('copy-status');
+    status.classList.remove('hidden');
+    setTimeout(() => status.classList.add('hidden'), 2000);
+  });
+});
+</script>
   </script>
 </body>
 </html>
