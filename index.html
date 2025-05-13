@@ -313,6 +313,31 @@ document.getElementById('copy-all-btn').addEventListener('click', function () {
 
 // ======================= Init =======================
 loadBanks();
+
+  // ======================= Toggle Between IFSC and Branch Search =======================
+document.getElementById('by-ifsc-btn').addEventListener('click', function () {
+  // Show IFSC form and hide Branch form
+  document.getElementById('ifsc-form-container').classList.remove('hidden');
+  document.getElementById('branch-form-container').classList.add('hidden');
+
+  // Highlight the active button
+  this.classList.add('bg-blue-600', 'text-white');
+  this.classList.remove('bg-gray-200', 'text-blue-700');
+  document.getElementById('by-branch-btn').classList.remove('bg-blue-600', 'text-white');
+  document.getElementById('by-branch-btn').classList.add('bg-gray-200', 'text-blue-700');
+});
+
+document.getElementById('by-branch-btn').addEventListener('click', function () {
+  // Show Branch form and hide IFSC form
+  document.getElementById('ifsc-form-container').classList.add('hidden');
+  document.getElementById('branch-form-container').classList.remove('hidden');
+
+  // Highlight the active button
+  this.classList.add('bg-blue-600', 'text-white');
+  this.classList.remove('bg-gray-200', 'text-blue-700');
+  document.getElementById('by-ifsc-btn').classList.remove('bg-blue-600', 'text-white');
+  document.getElementById('by-ifsc-btn').classList.add('bg-gray-200', 'text-blue-700');
+});
 </script>
 </body>
 </html>
