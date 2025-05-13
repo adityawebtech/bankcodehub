@@ -69,7 +69,18 @@
         <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr">N/A</span></p>
       </div>
     </div>
-    <!-- Search by Branch -->
+
+    <div class="mt-6 text-center">
+      <button id="copy-all-btn"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+        Copy Details
+      </button>
+      <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
+    </div>
+  </div>
+</div>
+
+<!-- Search by Branch -->
 <div id="branch-form-container" class="tab-content hidden">
   <form id="branch-form" class="space-y-4">
     <select id="bank-select" class="w-full p-3 border border-gray-300 rounded" required>
@@ -97,15 +108,6 @@
         <p class="text-lg"><strong>State:</strong> <span id="branch-state"></span></p>
         <p class="text-lg"><strong>IFSC Code:</strong> <span id="branch-ifsc"></span></p>
       </div>
-    </div>
-  </div>
-</div>
-    <div class="mt-6 text-center">
-      <button id="copy-all-btn"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-        Copy Details
-      </button>
-      <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
     </div>
   </div>
 </div>
