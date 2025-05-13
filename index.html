@@ -69,18 +69,7 @@
         <p class="text-lg"><strong>MICR Code:</strong> <span id="ifsc-micr">N/A</span></p>
       </div>
     </div>
-
-    <div class="mt-6 text-center">
-      <button id="copy-all-btn"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-        Copy Details
-      </button>
-      <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
-    </div>
-  </div>
-</div>
-
-<!-- Search by Branch -->
+    <!-- Search by Branch -->
 <div id="branch-form-container" class="tab-content hidden">
   <form id="branch-form" class="space-y-4">
     <select id="bank-select" class="w-full p-3 border border-gray-300 rounded" required>
@@ -108,6 +97,15 @@
         <p class="text-lg"><strong>State:</strong> <span id="branch-state"></span></p>
         <p class="text-lg"><strong>IFSC Code:</strong> <span id="branch-ifsc"></span></p>
       </div>
+    </div>
+  </div>
+</div>
+    <div class="mt-6 text-center">
+      <button id="copy-all-btn"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+        Copy Details
+      </button>
+      <p id="copy-status" class="mt-2 text-green-600 text-sm hidden">Copied to clipboard!</p>
     </div>
   </div>
 </div>
@@ -160,60 +158,37 @@
   </footer>
   
 <script>
-  // IFSC form handler
-  document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const code = this.ifsc.value.trim().toUpperCase();
-    const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
-    const data = await res.json();
-    const result = document.getElementById('ifsc-result');
+const baseUrl = "https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev";
 
-    if (res.ok && data.IFSC) {
-      document.getElementById('ifsc-bank-name').textContent = data.BANK;
-      document.getElementById('ifsc-branch').textContent = data.BRANCH;
-      document.getElementById('ifsc-address').textContent = data.ADDRESS;
-      document.getElementById('ifsc-city').textContent = data.CITY;
-      document.getElementById('ifsc-state').textContent = data.STATE;
-      document.getElementById('ifsc-code').textContent = data.IFSC;
-      document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
-      document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
+// ======================= IFSC Code Search =======================
+document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const code = this.ifsc.value.trim().toUpperCase();
+  const res = await fetch(`${baseUrl}/get-ifsc?code=${code}`);
+  const data = await res.json();
+  const result = document.getElementById('ifsc-result');
 
-      result.classList.remove('hidden');
-    } else {
-      result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
-      result.classList.remove('hidden');
-    }
-  });
+  if (res.ok && data.IFSC) {
+    document.getElementById('ifsc-bank-name').textContent = data.BANK;
+    document.getElementById('ifsc-branch').textContent = data.BRANCH;
+    document.getElementById('ifsc-address').textContent = data.ADDRESS;
+    document.getElementById('ifsc-city').textContent = data.CITY;
+    document.getElementById('ifsc-state').textContent = data.STATE;
+    document.getElementById('ifsc-code').textContent = data.IFSC;
+    document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
+    document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
+    result.classList.remove('hidden');
+  } else {
+    result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
+    result.classList.remove('hidden');
+  }
+});
 
-  // Copy to clipboard
-  document.getElementById('copy-all-btn').addEventListener('click', function () {
-    const fields = [
-      ['Bank', document.getElementById('ifsc-bank-name').textContent],
-      ['Branch', document.getElementById('ifsc-branch').textContent],
-      ['Address', document.getElementById('ifsc-address').textContent],
-      ['City', document.getElementById('ifsc-city').textContent],
-      ['State', document.getElementById('ifsc-state').textContent],
-      ['IFSC Code', document.getElementById('ifsc-code').textContent],
-      ['Contact', document.getElementById('ifsc-contact').textContent],
-      ['MICR Code', document.getElementById('ifsc-micr').textContent]
-    ];
-
-    const textToCopy = fields.map(([label, value]) => `${label}: ${value}`).join('\n');
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      const status = document.getElementById('copy-status');
-      status.classList.remove('hidden');
-      setTimeout(() => status.classList.add('hidden'), 2000);
-    });
-  });
-
-  const baseUrl = "https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev";
-
-// Populate Bank List on Page Load
+// ======================= Branch-wise Search =======================
 async function loadBanks() {
   const res = await fetch(`${baseUrl}/banks`);
   const banks = await res.json();
   const bankSelect = document.getElementById("bank-select");
-
   banks.forEach(bank => {
     const option = document.createElement("option");
     option.value = bank;
@@ -222,43 +197,36 @@ async function loadBanks() {
   });
 }
 
-// Handle Bank Selection → Load States
 document.getElementById("bank-select").addEventListener("change", async function () {
   const bank = this.value;
   resetDropdowns(["state", "district", "branch"]);
   if (!bank) return;
-
   const res = await fetch(`${baseUrl}/states?bank=${encodeURIComponent(bank)}`);
   const states = await res.json();
   populateDropdown("state-select", states);
 });
 
-// Handle State Selection → Load Districts
 document.getElementById("state-select").addEventListener("change", async function () {
   const bank = document.getElementById("bank-select").value;
   const state = this.value;
   resetDropdowns(["district", "branch"]);
   if (!state) return;
-
   const res = await fetch(`${baseUrl}/districts?bank=${encodeURIComponent(bank)}&state=${encodeURIComponent(state)}`);
   const districts = await res.json();
   populateDropdown("district-select", districts);
 });
 
-// Handle District Selection → Load Branches
 document.getElementById("district-select").addEventListener("change", async function () {
   const bank = document.getElementById("bank-select").value;
   const state = document.getElementById("state-select").value;
   const district = this.value;
   resetDropdowns(["branch"]);
   if (!district) return;
-
   const res = await fetch(`${baseUrl}/branches?bank=${encodeURIComponent(bank)}&state=${encodeURIComponent(state)}&district=${encodeURIComponent(district)}`);
   const branches = await res.json();
   populateDropdown("branch-select", branches);
 });
 
-// Handle Final Submission to Get Branch Details
 document.getElementById("branch-form").addEventListener("submit", async function (e) {
   e.preventDefault();
   const bank = document.getElementById("bank-select").value;
@@ -277,7 +245,6 @@ document.getElementById("branch-form").addEventListener("submit", async function
     document.getElementById("branch-city").textContent = data.CITY;
     document.getElementById("branch-state").textContent = data.STATE;
     document.getElementById("branch-ifsc").textContent = data.IFSC;
-
     result.classList.remove("hidden");
   } else {
     result.innerHTML = `<p class="text-red-600 text-center text-lg">Details not found. Try again.</p>`;
@@ -285,10 +252,10 @@ document.getElementById("branch-form").addEventListener("submit", async function
   }
 });
 
-// Utility Functions
+// ======================= Utility Functions =======================
 function populateDropdown(id, items) {
   const select = document.getElementById(`${id}-select`);
-  select.innerHTML = `<option value="">Select ${id.replace("-select", "").charAt(0).toUpperCase() + id.replace("-select", "").slice(1)}</option>`;
+  select.innerHTML = `<option value="">Select ${capitalize(id.split("-")[0])}</option>`;
   items.forEach(item => {
     const option = document.createElement("option");
     option.value = item;
@@ -301,12 +268,50 @@ function populateDropdown(id, items) {
 function resetDropdowns(ids) {
   ids.forEach(id => {
     const select = document.getElementById(`${id}-select`);
-    select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
+    select.innerHTML = `<option value="">Select ${capitalize(id)}</option>`;
     select.disabled = true;
   });
 }
 
-// Init
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+// ======================= Copy to Clipboard for Both Tabs =======================
+document.getElementById('copy-all-btn').addEventListener('click', function () {
+  let fields = [];
+
+  if (!document.getElementById("ifsc-result").classList.contains("hidden")) {
+    fields = [
+      ['Bank', document.getElementById('ifsc-bank-name').textContent],
+      ['Branch', document.getElementById('ifsc-branch').textContent],
+      ['Address', document.getElementById('ifsc-address').textContent],
+      ['City', document.getElementById('ifsc-city').textContent],
+      ['State', document.getElementById('ifsc-state').textContent],
+      ['IFSC Code', document.getElementById('ifsc-code').textContent],
+      ['Contact', document.getElementById('ifsc-contact').textContent],
+      ['MICR Code', document.getElementById('ifsc-micr').textContent]
+    ];
+  } else if (!document.getElementById("branch-result").classList.contains("hidden")) {
+    fields = [
+      ['Bank', document.getElementById('branch-bank-name').textContent],
+      ['Branch', document.getElementById('branch-branch').textContent],
+      ['Address', document.getElementById('branch-address').textContent],
+      ['City', document.getElementById('branch-city').textContent],
+      ['State', document.getElementById('branch-state').textContent],
+      ['IFSC Code', document.getElementById('branch-ifsc').textContent]
+    ];
+  }
+
+  const textToCopy = fields.map(([label, value]) => `${label}: ${value}`).join('\n');
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    const status = document.getElementById('copy-status');
+    status.classList.remove('hidden');
+    setTimeout(() => status.classList.add('hidden'), 2000);
+  });
+});
+
+// ======================= Init =======================
 loadBanks();
 </script>
 </body>
