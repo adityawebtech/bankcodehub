@@ -137,90 +137,114 @@
   
 <script>
   // Toggle between IFSC and Branch search
-document.getElementById('by-ifsc-btn').addEventListener('click', function () {
-  document.getElementById('ifsc-form-container').classList.remove('hidden');
-  document.getElementById('by-branch').classList.add('hidden');
-});
-
-document.getElementById('by-branch-btn').addEventListener('click', function () {
-  document.getElementById('by-branch').classList.remove('hidden');
-  document.getElementById('ifsc-form-container').classList.add('hidden');
-});
-
-// IFSC Search
-document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const code = this.ifsc.value.trim().toUpperCase();
-  
-  const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
-  const data = await res.json();
-
-  const result = document.getElementById('ifsc-result');
-
-  if (res.ok && data.IFSC) {
-    document.getElementById('ifsc-bank-name').textContent = data.BANK;
-    document.getElementById('ifsc-branch').textContent = data.BRANCH;
-    document.getElementById('ifsc-address').textContent = data.ADDRESS;
-    document.getElementById('ifsc-city').textContent = data.CITY;
-    document.getElementById('ifsc-state').textContent = data.STATE;
-    document.getElementById('ifsc-code').textContent = data.IFSC;
-    document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
-    document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
-    
-    result.classList.remove('hidden');
-  } else {
-    result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
-    result.classList.remove('hidden');
-  }
-});
-
-// Branch Search
-document.getElementById('branch-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  
-  const bank = this.bank.value.trim().toUpperCase();
-  const state = this.state.value.trim().toUpperCase();
-  const district = this.district.value.trim().toUpperCase();
-  const branch = this.branch.value.trim().toUpperCase();
-  
-  const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?bank=${bank}&state=${state}&district=${district}&branch=${branch}`);
-  const data = await res.json();
-
-  const branchResult = document.getElementById('branch-result');
-
-  if (res.ok && data.ifsc) {
-    branchResult.innerHTML = `
-      <p><strong>IFSC Code:</strong> ${data.ifsc}</p>
-      <p><strong>MICR:</strong> ${data.micr || "N/A"}</p>
-      <p><strong>Address:</strong> ${data.address}</p>
-      <p><strong>Contact:</strong> ${data.contact || "N/A"}</p>
-    `;
-  } else {
-    branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the branch details.</p>`;
-  }
-});
-
-// Copy all details
-document.getElementById('copy-all-btn').addEventListener('click', function () {
-  const fields = [
-    ['Bank', document.getElementById('ifsc-bank-name').textContent],
-    ['Branch', document.getElementById('ifsc-branch').textContent],
-    ['Address', document.getElementById('ifsc-address').textContent],
-    ['City', document.getElementById('ifsc-city').textContent],
-    ['State', document.getElementById('ifsc-state').textContent],
-    ['IFSC Code', document.getElementById('ifsc-code').textContent],
-    ['Contact', document.getElementById('ifsc-contact').textContent],
-    ['MICR Code', document.getElementById('ifsc-micr').textContent]
-  ];
-
-  const textToCopy = fields.map(([label, value]) => `${label}: ${value}`).join('\n');
-  
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    const status = document.getElementById('copy-status');
-    status.classList.remove('hidden');
-    setTimeout(() => status.classList.add('hidden'), 2000);
+  document.getElementById('by-ifsc-btn').addEventListener('click', function () {
+    document.getElementById('ifsc-form-container').classList.remove('hidden');
+    document.getElementById('by-branch').classList.add('hidden');
+    document.getElementById('branch-result').innerHTML = ''; // Clear previous branch results
   });
-});
+
+  document.getElementById('by-branch-btn').addEventListener('click', function () {
+    document.getElementById('by-branch').classList.remove('hidden');
+    document.getElementById('ifsc-form-container').classList.add('hidden');
+    document.getElementById('ifsc-result').classList.add('hidden'); // Hide previous IFSC results
+  });
+
+  // IFSC Search
+  document.getElementById('ifsc-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const code = this.ifsc.value.trim().toUpperCase();
+    const result = document.getElementById('ifsc-result');
+    result.classList.add('hidden');
+    result.innerHTML = '';
+
+    if (!code) {
+      result.innerHTML = `<p class="text-red-600 text-center text-lg">Please enter a valid IFSC code.</p>`;
+      result.classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-ifsc?code=${code}`);
+      const data = await res.json();
+
+      if (res.ok && data.IFSC) {
+        document.getElementById('ifsc-bank-name').textContent = data.BANK;
+        document.getElementById('ifsc-branch').textContent = data.BRANCH;
+        document.getElementById('ifsc-address').textContent = data.ADDRESS;
+        document.getElementById('ifsc-city').textContent = data.CITY;
+        document.getElementById('ifsc-state').textContent = data.STATE;
+        document.getElementById('ifsc-code').textContent = data.IFSC;
+        document.getElementById('ifsc-contact').textContent = data.CONTACT || "N/A";
+        document.getElementById('ifsc-micr').textContent = data.MICR || "N/A";
+
+        result.classList.remove('hidden');
+      } else {
+        result.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the IFSC code.</p>`;
+        result.classList.remove('hidden');
+      }
+    } catch (err) {
+      result.innerHTML = `<p class="text-red-600 text-center text-lg">Error fetching data. Try again.</p>`;
+      result.classList.remove('hidden');
+    }
+  });
+
+  // Branch Search
+  document.getElementById('branch-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const bank = this.bank.value.trim().toUpperCase();
+    const state = this.state.value.trim().toUpperCase();
+    const district = this.district.value.trim().toUpperCase();
+    const branch = this.branch.value.trim().toUpperCase();
+
+    const branchResult = document.getElementById('branch-result');
+    branchResult.innerHTML = '';
+
+    if (!bank || !state || !district || !branch) {
+      branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Please fill all fields.</p>`;
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://bd1451a0-1749-4883-9b86-ce8a10b198be-00-1d30endonkfvg.sisko.replit.dev/get-branch?bank=${bank}&state=${state}&district=${district}&branch=${branch}`);
+      const data = await res.json();
+
+      if (res.ok && data.ifsc) {
+        branchResult.innerHTML = `
+          <p><strong>IFSC Code:</strong> ${data.ifsc}</p>
+          <p><strong>MICR:</strong> ${data.micr || "N/A"}</p>
+          <p><strong>Address:</strong> ${data.address}</p>
+          <p><strong>Contact:</strong> ${data.contact || "N/A"}</p>
+        `;
+      } else {
+        branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Not found. Please check the branch details.</p>`;
+      }
+    } catch (err) {
+      branchResult.innerHTML = `<p class="text-red-600 text-center text-lg">Error fetching data. Try again.</p>`;
+    }
+  });
+
+  // Copy all IFSC details
+  document.getElementById('copy-all-btn').addEventListener('click', function () {
+    const fields = [
+      ['Bank', document.getElementById('ifsc-bank-name').textContent],
+      ['Branch', document.getElementById('ifsc-branch').textContent],
+      ['Address', document.getElementById('ifsc-address').textContent],
+      ['City', document.getElementById('ifsc-city').textContent],
+      ['State', document.getElementById('ifsc-state').textContent],
+      ['IFSC Code', document.getElementById('ifsc-code').textContent],
+      ['Contact', document.getElementById('ifsc-contact').textContent],
+      ['MICR Code', document.getElementById('ifsc-micr').textContent]
+    ];
+
+    const textToCopy = fields.map(([label, value]) => `${label}: ${value}`).join('\n');
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const status = document.getElementById('copy-status');
+      status.classList.remove('hidden');
+      setTimeout(() => status.classList.add('hidden'), 2000);
+    });
+  });
 </script>
 </body>
 </html>
